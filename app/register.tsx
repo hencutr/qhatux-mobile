@@ -1,16 +1,13 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-// --- CONFIGURACIÓN DE RED ---
-// Reemplaza esta IP por la IP local de tu computadora (Ej: 192.168.1.45)
 const BACKEND_URL = 'http://10.0.2.2:8000';
 
-// Paleta de colores
 const COLORS = {
     bg: '#0B1121',
     brandText: '#FFFFFF',
@@ -24,17 +21,21 @@ const COLORS = {
     error: '#EF4444'
 };
 
-export default function LoginScreen() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
+export default function RegisterScreen() {
     const router = useRouter();
 
-    const handleLogin = async () => {
-        // Validación básica antes de mandar peticiones a la nube
-        if (!email || !password) {
-            setErrorMessage('Por favor ingresa correo y contraseña.');
+    const [nombres, setNombres] = useState('');
+    const [apellidos, setApellidos] = useState('');
+    const [telefono, setTelefono] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const handleRegister = async () => {
+        if (!nombres || !apellidos || !telefono || !email || !password) {
+            setErrorMessage('Por favor completa todos los campos.');
             return;
         }
 
@@ -42,36 +43,24 @@ export default function LoginScreen() {
         setErrorMessage('');
 
         try {
-            // Ajusta la ruta '/api/users/token/' según cómo hayas definido tu URL de login en Django
-            const response = await axios.post(`${BACKEND_URL}/api/users/login/`, {
-                email: email,
-                password: password
+            await axios.post(`${BACKEND_URL}/api/users/registro/`, {
+                nombres,
+                apellidos,
+                telefono,
+                email,
+                password,
+                rol: 'Cliente' // Forzamos a que todos los que se registren por la app sean comensales
             });
 
-            // Si Django responde 200 OK, nos manda los tokens
-            const { access, refresh } = response.data;
-
-            // Guardamos el token en la bóveda del celular
-            await AsyncStorage.setItem('accessToken', access);
-            await AsyncStorage.setItem('refreshToken', refresh);
-
-            console.log("Login exitoso. Token guardado.");
-            // Lo mandamos a la siguiente pantalla (el Timeline)
-            router.replace('/(tabs)/timeline');
-
-            Alert.alert("Éxito", "Sesión iniciada correctamente.");
+            Alert.alert("Éxito", "Cuenta creada correctamente. Ahora puedes iniciar sesión.");
+            router.back();
 
         } catch (error: any) {
-            console.error("Error completo en consola:", error.response || error);
-
             if (error.response) {
-                // El servidor respondió y nos pateó (ej. 400, 401, 500)
-                // Sacamos el mensaje exacto de las tripas de Django
                 const status = error.response.status;
                 const backendMsg = JSON.stringify(error.response.data);
-                setErrorMessage(`Error Django [${status}]: ${backendMsg}`);
+                setErrorMessage(`Error [${status}]: ${backendMsg}`);
             } else {
-                // El servidor ni siquiera respondió o Axios colapsó
                 setErrorMessage(`Fallo de red: ${error.message}`);
             }
         } finally {
@@ -86,24 +75,58 @@ export default function LoginScreen() {
         >
             <StatusBar style="light" />
 
-            <View style={styles.formContainer}>
-                <View style={styles.headerContainer}>
-                    <View style={styles.logoRing}>
-                        <Image
-                            source={require('../assets/images/logo_qhatux.png')}
-                            style={styles.logo}
-                            resizeMode="contain"
-                        />
-                    </View>
-                    <Text style={styles.brandTitle}>QHATUX</Text>
-                </View>
+            <View style={styles.navBar}>
+                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                    <Ionicons name="chevron-back" size={28} color={COLORS.brandText} />
+                </TouchableOpacity>
+                <Text style={styles.navTitle}>Crear Cuenta</Text>
+                <View style={{ width: 28 }} />
+            </View>
 
-                <Text style={styles.subtitle}>Inicia sesión para participar en los sorteos</Text>
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
+                <Text style={styles.subtitle}>Únete a Qhatux y descubre los mejores locales</Text>
 
-                {/* Mensaje de Error Visual */}
                 {errorMessage ? (
                     <Text style={styles.errorText}>{errorMessage}</Text>
                 ) : null}
+
+                <View style={styles.inputWrapper}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Nombres"
+                        value={nombres}
+                        onChangeText={setNombres}
+                        placeholderTextColor={COLORS.muted}
+                        editable={!isLoading}
+                    />
+                </View>
+
+                <View style={styles.inputWrapper}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Apellidos"
+                        value={apellidos}
+                        onChangeText={setApellidos}
+                        placeholderTextColor={COLORS.muted}
+                        editable={!isLoading}
+                    />
+                </View>
+
+                <View style={styles.inputWrapper}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Teléfono (WhatsApp)"
+                        value={telefono}
+                        onChangeText={setTelefono}
+                        keyboardType="phone-pad"
+                        placeholderTextColor={COLORS.muted}
+                        editable={!isLoading}
+                    />
+                </View>
 
                 <View style={styles.inputWrapper}>
                     <TextInput
@@ -132,7 +155,7 @@ export default function LoginScreen() {
 
                 <TouchableOpacity
                     style={styles.buttonWrapper}
-                    onPress={handleLogin}
+                    onPress={handleRegister}
                     activeOpacity={0.8}
                     disabled={isLoading}
                 >
@@ -145,19 +168,11 @@ export default function LoginScreen() {
                         {isLoading ? (
                             <ActivityIndicator color={COLORS.white} />
                         ) : (
-                            <Text style={styles.buttonText}>Ingresar</Text>
+                            <Text style={styles.buttonText}>Registrarme</Text>
                         )}
                     </LinearGradient>
                 </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={styles.registerLink}
-                    disabled={isLoading}
-                    onPress={() => router.push('/register')}
-                >
-                    <Text style={styles.registerText}>¿No tienes cuenta? Regístrate aquí</Text>
-                </TouchableOpacity>
-            </View>
+            </ScrollView>
         </KeyboardAvoidingView>
     );
 }
@@ -166,43 +181,36 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: COLORS.bg,
-        justifyContent: 'center',
     },
-    formContainer: {
-        paddingHorizontal: 30,
+    navBar: {
+        flexDirection: 'row',
         alignItems: 'center',
-    },
-    headerContainer: {
-        alignItems: 'center',
-        marginBottom: 5,
-    },
-    logoRing: {
-        width: 130,
-        height: 130,
-        borderRadius: 65,
-        borderWidth: 4,
-        borderColor: COLORS.pinkAccent,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 15,
+        justifyContent: 'space-between',
+        paddingTop: Platform.OS === 'ios' ? 60 : 40,
+        paddingBottom: 15,
+        paddingHorizontal: 15,
         backgroundColor: COLORS.bg,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.border,
     },
-    logo: {
-        width: 105,
-        height: 105,
+    backButton: {
+        padding: 5,
     },
-    brandTitle: {
-        fontSize: 48,
-        fontFamily: Platform.OS === 'ios' ? 'Helvetica Neue' : 'sans-serif-condensed',
-        fontWeight: '900',
+    navTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
         color: COLORS.brandText,
-        letterSpacing: 2,
+    },
+    scrollContent: {
+        padding: 30,
+        alignItems: 'center',
+        paddingBottom: 50,
     },
     subtitle: {
         fontSize: 15,
         color: COLORS.text,
         textAlign: 'center',
-        marginBottom: 30, // Reduje un poco para dar espacio al error
+        marginBottom: 25,
     },
     errorText: {
         color: COLORS.error,
@@ -226,7 +234,7 @@ const styles = StyleSheet.create({
     },
     buttonWrapper: {
         width: '100%',
-        marginTop: 15,
+        marginTop: 10,
         shadowColor: COLORS.pinkAccent,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.4,
@@ -242,15 +250,6 @@ const styles = StyleSheet.create({
     buttonText: {
         color: COLORS.white,
         fontSize: 17,
-        fontWeight: 'bold',
-    },
-    registerLink: {
-        marginTop: 25,
-        padding: 10,
-    },
-    registerText: {
-        color: COLORS.pinkAccent,
-        fontSize: 15,
         fontWeight: 'bold',
     },
 });
