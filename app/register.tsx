@@ -6,7 +6,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-const BACKEND_URL = 'http://10.0.2.2:8000';
+// 🔥 APUNTANDO A LA NUBE DIRECTO
+const BACKEND_URL = 'https://app.qhatux.com';
 
 const COLORS = {
     bg: '#0B1121',
@@ -49,7 +50,7 @@ export default function RegisterScreen() {
                 telefono,
                 email,
                 password,
-                rol: 'Cliente' // Forzamos a que todos los que se registren por la app sean comensales
+                rol: 'Cliente'
             });
 
             Alert.alert("Éxito", "Cuenta creada correctamente. Ahora puedes iniciar sesión.");
@@ -69,12 +70,8 @@ export default function RegisterScreen() {
     };
 
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.container}
-        >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
             <StatusBar style="light" />
-
             <View style={styles.navBar}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Ionicons name="chevron-back" size={28} color={COLORS.brandText} />
@@ -83,93 +80,27 @@ export default function RegisterScreen() {
                 <View style={{ width: 28 }} />
             </View>
 
-            <ScrollView
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
-            >
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                 <Text style={styles.subtitle}>Únete a Qhatux y descubre los mejores locales</Text>
-
-                {errorMessage ? (
-                    <Text style={styles.errorText}>{errorMessage}</Text>
-                ) : null}
-
+                {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
                 <View style={styles.inputWrapper}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Nombres"
-                        value={nombres}
-                        onChangeText={setNombres}
-                        placeholderTextColor={COLORS.muted}
-                        editable={!isLoading}
-                    />
+                    <TextInput style={styles.input} placeholder="Nombres" value={nombres} onChangeText={setNombres} placeholderTextColor={COLORS.muted} editable={!isLoading} />
                 </View>
-
                 <View style={styles.inputWrapper}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Apellidos"
-                        value={apellidos}
-                        onChangeText={setApellidos}
-                        placeholderTextColor={COLORS.muted}
-                        editable={!isLoading}
-                    />
+                    <TextInput style={styles.input} placeholder="Apellidos" value={apellidos} onChangeText={setApellidos} placeholderTextColor={COLORS.muted} editable={!isLoading} />
                 </View>
-
                 <View style={styles.inputWrapper}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Teléfono (WhatsApp)"
-                        value={telefono}
-                        onChangeText={setTelefono}
-                        keyboardType="phone-pad"
-                        placeholderTextColor={COLORS.muted}
-                        editable={!isLoading}
-                    />
+                    <TextInput style={styles.input} placeholder="Teléfono (WhatsApp)" value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" placeholderTextColor={COLORS.muted} editable={!isLoading} />
                 </View>
-
                 <View style={styles.inputWrapper}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Correo electrónico"
-                        value={email}
-                        onChangeText={setEmail}
-                        autoCapitalize="none"
-                        keyboardType="email-address"
-                        placeholderTextColor={COLORS.muted}
-                        editable={!isLoading}
-                    />
+                    <TextInput style={styles.input} placeholder="Correo electrónico" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholderTextColor={COLORS.muted} editable={!isLoading} />
                 </View>
-
                 <View style={styles.inputWrapper}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Contraseña"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                        placeholderTextColor={COLORS.muted}
-                        editable={!isLoading}
-                    />
+                    <TextInput style={styles.input} placeholder="Contraseña" value={password} onChangeText={setPassword} secureTextEntry placeholderTextColor={COLORS.muted} editable={!isLoading} />
                 </View>
-
-                <TouchableOpacity
-                    style={styles.buttonWrapper}
-                    onPress={handleRegister}
-                    activeOpacity={0.8}
-                    disabled={isLoading}
-                >
-                    <LinearGradient
-                        colors={[COLORS.pinkAccent, COLORS.orangeAccent]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.gradientButton}
-                    >
-                        {isLoading ? (
-                            <ActivityIndicator color={COLORS.white} />
-                        ) : (
-                            <Text style={styles.buttonText}>Registrarme</Text>
-                        )}
+                <TouchableOpacity style={styles.buttonWrapper} onPress={handleRegister} activeOpacity={0.8} disabled={isLoading}>
+                    <LinearGradient colors={[COLORS.pinkAccent, COLORS.orangeAccent]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.gradientButton}>
+                        {isLoading ? <ActivityIndicator color={COLORS.white} /> : <Text style={styles.buttonText}>Registrarme</Text>}
                     </LinearGradient>
                 </TouchableOpacity>
             </ScrollView>
@@ -178,78 +109,16 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.bg,
-    },
-    navBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingTop: Platform.OS === 'ios' ? 60 : 40,
-        paddingBottom: 15,
-        paddingHorizontal: 15,
-        backgroundColor: COLORS.bg,
-        borderBottomWidth: 1,
-        borderBottomColor: COLORS.border,
-    },
-    backButton: {
-        padding: 5,
-    },
-    navTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: COLORS.brandText,
-    },
-    scrollContent: {
-        padding: 30,
-        alignItems: 'center',
-        paddingBottom: 50,
-    },
-    subtitle: {
-        fontSize: 15,
-        color: COLORS.text,
-        textAlign: 'center',
-        marginBottom: 25,
-    },
-    errorText: {
-        color: COLORS.error,
-        marginBottom: 15,
-        fontWeight: 'bold',
-        textAlign: 'center',
-    },
-    inputWrapper: {
-        width: '100%',
-        marginBottom: 15,
-    },
-    input: {
-        backgroundColor: COLORS.inputBg,
-        height: 55,
-        borderRadius: 12,
-        paddingHorizontal: 18,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        fontSize: 16,
-        color: COLORS.white,
-    },
-    buttonWrapper: {
-        width: '100%',
-        marginTop: 10,
-        shadowColor: COLORS.pinkAccent,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
-        shadowRadius: 8,
-        elevation: 6,
-    },
-    gradientButton: {
-        height: 55,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: COLORS.white,
-        fontSize: 17,
-        fontWeight: 'bold',
-    },
+    container: { flex: 1, backgroundColor: COLORS.bg },
+    navBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 15, paddingHorizontal: 15, backgroundColor: COLORS.bg, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+    backButton: { padding: 5 },
+    navTitle: { fontSize: 18, fontWeight: 'bold', color: COLORS.brandText },
+    scrollContent: { padding: 30, alignItems: 'center', paddingBottom: 50 },
+    subtitle: { fontSize: 15, color: COLORS.text, textAlign: 'center', marginBottom: 25 },
+    errorText: { color: COLORS.error, marginBottom: 15, fontWeight: 'bold', textAlign: 'center' },
+    inputWrapper: { width: '100%', marginBottom: 15 },
+    input: { backgroundColor: COLORS.inputBg, height: 55, borderRadius: 12, paddingHorizontal: 18, borderWidth: 1, borderColor: COLORS.border, fontSize: 16, color: COLORS.white },
+    buttonWrapper: { width: '100%', marginTop: 10, shadowColor: COLORS.pinkAccent, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 8, elevation: 6 },
+    gradientButton: { height: 55, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+    buttonText: { color: COLORS.white, fontSize: 17, fontWeight: 'bold' },
 });
